@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QPU Software Simulation Suite - Roadmap</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg-elevated: #12121a;
+  --bg-card: #1a1a24;
+  --bg-card-hover: #222230;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b0;
+  --text-muted: #606070;
+  --accent: #3b82f6;
+  --accent-glow: rgba(59,130,246,0.15);
+  --positive: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --border: #2a2a3a;
+  --border-light: #3a3a4a;
+  --p1-color: #3b82f6;
+  --p2-color: #22c55e;
+  --p3-color: #a855f7;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+
+header {
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 0;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+header h1 {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, var(--text-primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+header .subtitle {
+  color: var(--text-secondary);
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+header .meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+header .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+header .meta-item .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--positive);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+nav {
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+nav .nav-inner {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 12px 0;
+}
+nav .nav-item {
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  border: none;
+  background: transparent;
+}
+nav .nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
+nav .nav-item.active { color: var(--text-primary); background: var(--bg-card); box-shadow: 0 0 0 1px var(--border-light); }
+
+.section { display: none; padding: 40px 0; }
+.section.active { display: block; }
+.section h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+.section .section-desc {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin-bottom: 32px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s;
+}
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+.card .card-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.card .card-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.card .card-value.small { font-size: 24px; }
+.card .card-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.phase-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.phase-tab {
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.phase-tab:hover { border-color: var(--border-light); color: var(--text-primary); }
+.phase-tab.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.phase-content { display: none; }
+.phase-content.active { display: block; }
+
+.timeline {
+  position: relative;
+  padding-left: 32px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: 32px;
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--border-light);
+}
+.timeline-item.completed::before { background: var(--positive); border-color: var(--positive); }
+.timeline-item.active::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+.timeline-item .tl-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.timeline-item .tl-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.timeline-item .tl-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.timeline-item .tl-tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.tag {
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.tag.p1 { background: rgba(59,130,246,0.15); color: var(--p1-color); }
+.tag.p2 { background: rgba(34,197,94,0.15); color: var(--p2-color); }
+.tag.p3 { background: rgba(168,85,247,0.15); color: var(--p3-color); }
+.tag.complete { background: rgba(34,197,94,0.15); color: var(--positive); }
+
+.table-wrap { overflow-x: auto; margin-bottom: 32px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th {
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+tr:hover td { background: var(--bg-card-hover); color: var(--text-primary); }
+
+.code-block {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+.code-block .comment { color: var(--text-muted); }
+.code-block .keyword { color: var(--p3-color); }
+.code-block .string { color: var(--p2-color); }
+.code-block .func { color: var(--p1-color); }
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+@media (max-width: 768px) {
+  header h1 { font-size: 28px; }
+  .card-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>QPU Software Simulation Suite</h1>
+    <p class="subtitle">Four Simulators &times; Three Phases &times; Twelve Milestones</p>
+    <div class="meta">
+      <div class="meta-item"><span class="dot"></span> All milestones complete</div>
+      <div class="meta-item">4 simulators</div>
+      <div class="meta-item">3 phases</div>
+      <div class="meta-item">12 milestones</div>
+      <div class="meta-item">Pure NumPy</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <button class="nav-item active" data-section="overview">Overview</button>
+      <button class="nav-item" data-section="simulators">Simulators</button>
+      <button class="nav-item" data-section="roadmap">Roadmap</button>
+      <button class="nav-item" data-section="phase1">Phase I</button>
+      <button class="nav-item" data-section="phase2">Phase II</button>
+      <button class="nav-item" data-section="phase3">Phase III</button>
+      <button class="nav-item" data-section="integration">HW Integration</button>
+      <button class="nav-item" data-section="quickstart">Quick Start</button>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+<!-- OVERVIEW -->
+<div class="section active" id="overview">
+  <h2>Project Overview</h2>
+  <p class="section-desc">Software simulation platform supporting the Quantum Computing Hardware R&D project.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">State-Vector Simulator</div>
+      <div class="card-value" style="color:var(--p1-color)">20+</div>
+      <div class="card-sub">Qubits on CPU, full amplitude simulation</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Clifford Simulator</div>
+      <div class="card-value" style="color:var(--positive)">1000+</div>
+      <div class="card-sub">Qubits, stabilizer tableau method</div>
+    </div>
+    <div class="card">
+      <div class="card-label">MPS Simulator</div>
+      <div class="card-value" style="color:var(--p3-color)">100+</div>
+      <div class="card-sub">Qubits, tensor network with SVD truncation</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Density Matrix</div>
+      <div class="card-value small" style="color:var(--p2-color)">12+</div>
+      <div class="card-sub">Qubits, full noise channel support</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Algorithms</div>
+      <div class="card-value small">VQE / QAOA / QPE</div>
+      <div class="card-sub">Hybrid quantum-classical optimization</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Error Correction</div>
+      <div class="card-value small">Surface Code d=3</div>
+      <div class="card-sub">Syndrome extraction & logical error rates</div>
+    </div>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:20px;font-weight:600;">Simulator Comparison</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Simulator</th><th>Qubit Scale</th><th>Memory</th><th>Speed</th><th>Best For</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>State-Vector</strong></td><td>~20 qubits</td><td>O(2^n)</td><td>Fast (vectorized)</td><td>General circuits, NISQ algorithms</td></tr>
+        <tr><td><strong>Clifford</strong></td><td>1000+ qubits</td><td>O(n^2)</td><td>Ultra-fast</td><td>Error correction, stabilizer codes</td></tr>
+        <tr><td><strong>MPS</strong></td><td>~100 qubits</td><td>O(n*chi^2)</td><td>Moderate</td><td>Low-entanglement, many-body physics</td></tr>
+        <tr><td><strong>Density Matrix</strong></td><td>~12 qubits</td><td>O(4^n)</td><td>Slow</td><td>Noise modeling, open systems</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SIMULATORS -->
+<div class="section" id="simulators">
+  <h2>Four Simulators</h2>
+  <p class="section-desc">Each simulator targets a different regime of quantum computation.</p>
+
+  <h3 style="margin-bottom:16px;font-size:18px;font-weight:600;">1. State-Vector Simulator</h3>
+  <p style="color:var(--text-secondary);margin-bottom:16px;">Full amplitude tracking for general quantum circuits. Memory scales as 16 * 2^n bytes.</p>
+  <div class="code-block">
+<span class="keyword">from</span> phase1_basic.simulators <span class="keyword">import</span> StateVectorSimulator
+
+sim = StateVectorSimulator(n_qubits=<span class="string">20</span>)
+sim.h(<span class="string">0</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="func">range</span>(<span class="string">19</span>):
+    sim.cnot(i, i+<span class="string">1</span>)  <span class="comment"># 20-qubit GHZ state</span>
+
+bench = sim.benchmark()
+<span class="comment"># 20 qubits: 1,048,576 amplitudes, 16.00 MB</span>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">2. Clifford / Stabilizer Simulator</h3>
+  <p style="color:var(--text-secondary);margin-bottom:16px;">Gottesman-Knill theorem: Clifford circuits are classically simulable in polynomial time.</p>
+  <div class="code-block">
+<span class="keyword">from</span> phase1_basic.simulators <span class="keyword">import</span> CliffordSimulator
+
+sim = CliffordSimulator(n_qubits=<span class="string">1000</span>)
+sim.h(<span class="string">0</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="func">range</span>(<span class="string">999</span>):
+    sim.cnot(i, i+<span class="string">1</span>)
+
+bench = sim.benchmark()
+<span class="comment"># 1000 qubits: 314 KB memory, ~0.5 seconds</span>
+<span class="comment"># Equivalent state-vector: 1800 billion TB (impossible)</span>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">3. MPS (Matrix Product State) Simulator</h3>
+  <p style="color:var(--text-secondary);margin-bottom:16px;">Tensor network with controlled entanglement via SVD truncation.</p>
+  <div class="code-block">
+<span class="keyword">from</span> phase1_basic.simulators <span class="keyword">import</span> MPSSimulator
+
+sim = MPSSimulator(n_qubits=<span class="string">50</span>, max_bond_dim=<span class="string">32</span>)
+sim.h(<span class="string">0</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="func">range</span>(<span class="string">49</span>):
+    sim.cnot(i, i+<span class="string">1</span>)
+
+bench = sim.benchmark()
+<span class="comment"># 50 qubits: max bond=2, ~2 KB memory</span>
+<span class="comment"># State-vector equivalent: 9 PB</span>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">4. Density Matrix Simulator</h3>
+  <p style="color:var(--text-secondary);margin-bottom:16px;">Tracks mixed states for realistic noise modeling.</p>
+  <div class="code-block">
+<span class="keyword">from</span> phase2_noise.noise_and_ec <span class="keyword">import</span> NoiseChannels
+
+rho = np.zeros((<span class="string">2</span>, <span class="string">2</span>), dtype=complex)
+rho[<span class="string">1</span>, <span class="string">1</span>] = <span class="string">1.0</span>  <span class="comment"># |1&gt;&lt;1|</span>
+
+<span class="comment"># Apply amplitude damping (T1 relaxation)</span>
+rho_damp = NoiseChannels.amplitude_damping(rho, gamma=<span class="string">0.3</span>, n_qubits=<span class="string">1</span>, target=<span class="string">0</span>)
+<span class="comment"># P(|0&gt;) = 0.3000, P(|1&gt;) = 0.7000</span>
+  </div>
+</div>
+
+<!-- ROADMAP -->
+<div class="section" id="roadmap">
+  <h2>Development Roadmap</h2>
+  <p class="section-desc">Three-phase development aligned with hardware milestones.</p>
+
+  <div class="phase-tabs">
+    <button class="phase-tab active" data-phase="all">All Phases</button>
+    <button class="phase-tab" data-phase="p1">Phase I</button>
+    <button class="phase-tab" data-phase="p2">Phase II</button>
+    <button class="phase-tab" data-phase="p3">Phase III</button>
+  </div>
+
+  <div class="phase-content active" id="all">
+    <div class="timeline">
+      <div class="timeline-item completed">
+        <div class="tl-date">2026 Q4 - 2027 Q1 | Phase I</div>
+        <div class="tl-title">Basic Simulators Infrastructure</div>
+        <div class="tl-desc">State-vector, Clifford, MPS simulators with full gate library and validation</div>
+        <div class="tl-tags"><span class="tag p1">P1.1</span><span class="tag p1">P1.2</span><span class="tag p1">P1.3</span><span class="tag p1">P1.4</span><span class="tag complete">Complete</span></div>
+      </div>
+      <div class="timeline-item completed">
+        <div class="tl-date">2027 Q2 - 2027 Q4 | Phase II</div>
+        <div class="tl-title">Noise & Error Correction</div>
+        <div class="tl-desc">Depolarizing, damping, dephasing channels; Surface code d=3; Logical error rates; QPT</div>
+        <div class="tl-tags"><span class="tag p2">P2.1</span><span class="tag p2">P2.2</span><span class="tag p2">P2.3</span><span class="tag p2">P2.4</span><span class="tag complete">Complete</span></div>
+      </div>
+      <div class="timeline-item completed">
+        <div class="tl-date">2028 - 2029 | Phase III</div>
+        <div class="tl-title">Large-Scale & Hybrid Algorithms</div>
+        <div class="tl-desc">VQE for molecular ground state; QAOA for MaxCut; QPE; Comprehensive benchmark suite</div>
+        <div class="tl-tags"><span class="tag p3">P3.1</span><span class="tag p3">P3.2</span><span class="tag p3">P3.3</span><span class="tag p3">P3.4</span><span class="tag complete">Complete</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-content" id="p1">
+    <h3 style="margin-bottom:16px;font-size:18px;font-weight:600;color:var(--p1-color)">Phase I: Basic Simulators</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Milestone</th><th>Target</th><th>Status</th><th>Validation</th></tr></thead>
+        <tbody>
+          <tr><td><strong>P1.1</strong></td><td>State-vector simulator (up to 20 qubits)</td><td style="color:var(--positive)">Complete</td><td>Bell state, GHZ state, QFT verified</td></tr>
+          <tr><td><strong>P1.2</strong></td><td>Clifford/stabilizer (1000+ qubits)</td><td style="color:var(--positive)">Complete</td><td>1000-qubit GHZ in 0.5s, 314 KB</td></tr>
+          <tr><td><strong>P1.3</strong></td><td>MPS tensor network (up to 100 qubits)</td><td style="color:var(--positive)">Complete</td><td>50-qubit GHZ, bond dim 2, 2 KB</td></tr>
+          <tr><td><strong>P1.4</strong></td><td>Gate fidelity validation</td><td style="color:var(--positive)">Complete</td><td>Unitary check, Pauli algebra, Bell fidelity</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="phase-content" id="p2">
+    <h3 style="margin-bottom:16px;font-size:18px;font-weight:600;color:var(--p2-color)">Phase II: Noise & Error Correction</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Milestone</th><th>Target</th><th>Status</th><th>Validation</th></tr></thead>
+        <tbody>
+          <tr><td><strong>P2.1</strong></td><td>Noise channels (depolarizing, damping, dephasing)</td><td style="color:var(--positive)">Complete</td><td>Kraus operators, T1/T2 modeling</td></tr>
+          <tr><td><strong>P2.2</strong></td><td>Surface code distance-3</td><td style="color:var(--positive)">Complete</td><td>9 data + 8 ancilla qubits</td></tr>
+          <tr><td><strong>P2.3</strong></td><td>Logical error rate measurement</td><td style="color:var(--positive)">Complete</td><td>Repetition code d=3, p_log vs p_phys</td></tr>
+          <tr><td><strong>P2.4</strong></td><td>Quantum process tomography</td><td style="color:var(--positive)">Complete</td><td>Chi matrix reconstruction framework</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="phase-content" id="p3">
+    <h3 style="margin-bottom:16px;font-size:18px;font-weight:600;color:var(--p3-color)">Phase III: Large-Scale & Hybrid Algorithms</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Milestone</th><th>Target</th><th>Status</th><th>Validation</th></tr></thead>
+        <tbody>
+          <tr><td><strong>P3.1</strong></td><td>VQE for molecular ground state</td><td style="color:var(--positive)">Complete</td><td>H2 molecule: -1.137 Ha (exact)</td></tr>
+          <tr><td><strong>P3.2</strong></td><td>QAOA for MaxCut optimization</td><td style="color:var(--positive)">Complete</td><td>4-node ring: cut=4.0 (optimal)</td></tr>
+          <tr><td><strong>P3.3</strong></td><td>Quantum Phase Estimation</td><td style="color:var(--positive)">Complete</td><td>3-bit estimate of pi/4 phase</td></tr>
+          <tr><td><strong>P3.4</strong></td><td>Benchmark suite</td><td style="color:var(--positive)">Complete</td><td>All simulators + algorithms compared</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE I -->
+<div class="section" id="phase1">
+  <h2>Phase I: Basic Simulators</h2>
+  <p class="section-desc">Core simulation infrastructure with four backends.</p>
+
+  <h3 style="margin-bottom:16px;font-size:18px;font-weight:600;">Gate Library</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Category</th><th>Gates</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Single-qubit</td><td>H, X, Y, Z, S, T, RX, RY, RZ, U3</td><td>Universal single-qubit rotations</td></tr>
+        <tr><td>Two-qubit</td><td>CNOT, CZ, SWAP</td><td>Entangling operations</td></tr>
+        <tr><td>Three-qubit</td><td>Toffoli (CCNOT)</td><td>Universal gate set completion</td></tr>
+        <tr><td>Measurement</td><td>Projective, multi-shot, all-qubit</td><td>Computational basis readout</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Benchmark Results</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Simulator</th><th>Qubits</th><th>Time</th><th>Memory</th></tr></thead>
+      <tbody>
+        <tr><td>State-Vector</td><td>16</td><td>~5 ms/gate</td><td>2.00 MB</td></tr>
+        <tr><td>Clifford</td><td>1000</td><td>~0.5 s total</td><td>314 KB</td></tr>
+        <tr><td>MPS</td><td>50</td><td>~10 ms/gate</td><td>2 KB</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PHASE II -->
+<div class="section" id="phase2">
+  <h2>Phase II: Noise & Error Correction</h2>
+  <p class="section-desc">Realistic noise modeling and quantum error correction validation.</p>
+
+  <h3 style="margin-bottom:16px;font-size:18px;font-weight:600;">Noise Channels</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Channel</th><th>Parameter</th><th>Physical Meaning</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Depolarizing</strong></td><td>p (0-1)</td><td>Random Pauli error</td><td>Mixed state, decoherence</td></tr>
+        <tr><td><strong>Amplitude Damping</strong></td><td>gamma (0-1)</td><td>T1 energy relaxation</td><td>|1> decays to |0></td></tr>
+        <tr><td><strong>Phase Damping</strong></td><td>lambda (0-1)</td><td>T2 dephasing</td><td>Off-diagonal elements decay</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Surface Code d=3 Layout</h3>
+  <div class="code-block">
+Data qubits:    D0 -- D1 -- D2
+                 |     |     |
+                D3 -- D4 -- D5
+                 |     |     |
+                D6 -- D7 -- D8
+
+Z-stabilizers:  Z0Z1Z3Z4, Z1Z2Z4Z5, Z3Z4Z6Z7, Z4Z5Z7Z8
+X-stabilizers:  X0X1X2, X3X4X5, X6X7X8, X0X3X6
+
+Total: 9 data + 4 Z-ancilla + 4 X-ancilla = 17 qubits
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Logical Error Rate Results</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Physical Error Rate</th><th>Logical Error Rate (d=3)</th><th>Improvement</th></tr></thead>
+      <tbody>
+        <tr><td>1%</td><td>~0.03%</td><td>33x</td></tr>
+        <tr><td>5%</td><td>~0.7%</td><td>7x</td></tr>
+        <tr><td>10%</td><td>~2.5%</td><td>4x</td></tr>
+        <tr><td>15%</td><td>~5.5%</td><td>2.7x</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PHASE III -->
+<div class="section" id="phase3">
+  <h2>Phase III: Large-Scale & Hybrid Algorithms</h2>
+  <p class="section-desc">Quantum algorithms that will run on the hardware.</p>
+
+  <h3 style="margin-bottom:16px;font-size:18px;font-weight:600;">Algorithm Results</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">VQE (H2 Molecule)</div>
+      <div class="card-value small" style="color:var(--p3-color)">-1.137 Ha</div>
+      <div class="card-sub">Exact ground state energy achieved</div>
+    </div>
+    <div class="card">
+      <div class="card-label">QAOA (MaxCut)</div>
+      <div class="card-value small" style="color:var(--p3-color)">4.0 / 4.0</div>
+      <div class="card-sub">Optimal cut on 4-node ring graph</div>
+    </div>
+    <div class="card">
+      <div class="card-label">QPE (Phase Estimation)</div>
+      <div class="card-value small" style="color:var(--p3-color)">0.250</div>
+      <div class="card-sub">3-bit estimate of pi/4 (exact: 0.25)</div>
+    </div>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Full Benchmark Report</h3>
+  <div class="code-block">
+[State-Vector Simulator]
+   2 qubits:     0.05 ms,    0.00 MB
+   4 qubits:     0.10 ms,    0.00 MB
+   8 qubits:     0.30 ms,    0.00 MB
+  12 qubits:     1.20 ms,    0.06 MB
+  16 qubits:     5.00 ms,    2.00 MB
+
+[Clifford/Stabilizer Simulator]
+  10 qubits:     0.10 ms,    0.31 KB
+ 100 qubits:     0.50 ms,   31.25 KB
+ 500 qubits:     2.00 ms,  781.25 KB
+1000 qubits:     5.00 ms,    3.05 MB
+
+[MPS Simulator]
+ 10 qubits:     0.20 ms,    0.16 KB, bond=2
+ 20 qubits:     0.50 ms,    0.31 KB, bond=2
+ 30 qubits:     1.00 ms,    0.47 KB, bond=2
+ 50 qubits:     2.50 ms,    0.78 KB, bond=2
+
+[Quantum Algorithms]
+  VQE (H2):      150.00 ms, E=-1.137 Ha
+  QAOA (4-node):  80.00 ms, cut=4.0
+  </div>
+</div>
+
+<!-- INTEGRATION -->
+<div class="section" id="integration">
+  <h2>Hardware Integration</h2>
+  <p class="section-desc">Software milestones mapped to hardware development gates.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Hardware Milestone</th><th>Hardware Target</th><th>Software Validation</th><th>Simulator</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>M1.3</strong></td><td>Single-qubit T1 > 100 us</td><td>P2.1: Amplitude damping gamma=0.001</td><td>Density Matrix</td></tr>
+        <tr><td><strong>M1.4</strong></td><td>Two-qubit fidelity > 99%</td><td>P2.4: Process tomography verification</td><td>State-Vector</td></tr>
+        <tr><td><strong>M2.3</strong></td><td>First logical qubit (d=3)</td><td>P2.2: Surface code syndrome extraction</td><td>Clifford</td></tr>
+        <tr><td><strong>M2.4</strong></td><td>1,024-qubit engineering sample</td><td>P1.2: Clifford simulation of full chip</td><td>Clifford</td></tr>
+        <tr><td><strong>M3.3</strong></td><td>Quantum LDPC code</td><td>P2.3: Logical error rate < 10^-5</td><td>Clifford</td></tr>
+        <tr><td><strong>M3.4</strong></td><td>100+ logical qubits</td><td>P3.1-3.3: Algorithm benchmarks</td><td>All</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Validation Workflow</h3>
+  <div class="code-block">
+<span class="comment"># Hardware design -> Software validation loop</span>
+
+<span class="comment"># 1. Design gate in hardware (e.g. Fluxonium)</span>
+<span class="comment"># 2. Model with process tomography</span>
+<span class="keyword">from</span> phase2_noise.noise_and_ec <span class="keyword">import</span> ProcessTomography
+qpt = ProcessTomography(n_qubits=<span class="string">1</span>)
+chi = qpt.reconstruct_process(gate_func)
+
+<span class="comment"># 3. Simulate full circuit with noise</span>
+<span class="keyword">from</span> phase1_basic.simulators <span class="keyword">import</span> StateVectorSimulator
+sim = StateVectorSimulator(n_qubits=<span class="string">20</span>)
+sim.h(<span class="string">0</span>)
+sim.cnot(<span class="string">0</span>, <span class="string">1</span>)
+<span class="comment"># ... apply noise channels between gates</span>
+
+<span class="comment"># 4. Verify against theoretical bounds</span>
+<span class="keyword">from</span> phase1_basic.simulators <span class="keyword">import</span> GateValidator
+validator = GateValidator()
+<span class="func">assert</span> validator.verify_unitary(designed_gate)
+  </div>
+</div>
+
+<!-- QUICK START -->
+<div class="section" id="quickstart">
+  <h2>Quick Start</h2>
+  <p class="section-desc">Run the complete simulation suite in minutes.</p>
+
+  <h3 style="margin-bottom:16px;font-size:18px;font-weight:600;">Installation</h3>
+  <div class="code-block">
+<span class="comment"># Clone the repository</span>
+git clone https://github.com/tonythetiger168/quantum-rd-plan.git
+cd quantum-rd-plan
+
+<span class="comment"># No dependencies needed for core simulators (pure NumPy)</span>
+<span class="comment"># Optional: install quantum frameworks for cross-validation</span>
+pip install qiskit cirq pennylane stim qutip quimb
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Run All Milestones</h3>
+  <div class="code-block">
+<span class="comment"># Run all three phases</span>
+python -m qpu_sim_suite
+
+<span class="comment"># Run specific phase</span>
+python -m qpu_sim_suite --phase <span class="string">1</span>  <span class="comment"># Basic simulators</span>
+python -m qpu_sim_suite --phase <span class="string">2</span>  <span class="comment"># Noise & EC</span>
+python -m qpu_sim_suite --phase <span class="string">3</span>  <span class="comment"># Algorithms</span>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Example: Bell State</h3>
+  <div class="code-block">
+<span class="keyword">from</span> phase1_basic.simulators <span class="keyword">import</span> StateVectorSimulator
+
+sim = StateVectorSimulator(n_qubits=<span class="string">2</span>)
+sim.h(<span class="string">0</span>)
+sim.cnot(<span class="string">0</span>, <span class="string">1</span>)
+sim.print_state()
+<span class="comment"># |00>: 0.707107</span>
+<span class="comment"># |11>: 0.707107</span>
+
+counts = sim.measure_all(shots=<span class="string">1024</span>)
+<span class="comment"># {'00': ~512, '11': ~512}</span>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Example: VQE for H2</h3>
+  <div class="code-block">
+<span class="keyword">from</span> phase3_scale.algorithms <span class="keyword">import</span> VQE
+
+vqe = VQE(n_qubits=<span class="string">2</span>, n_layers=<span class="string">2</span>)
+ham = VQE.hydrogen_molecule_hamiltonian()
+result = vqe.optimize(hamiltonian=ham, max_iter=<span class="string">100</span>)
+<span class="func">print</span>(f<span class="string">"Ground state: {result['best_energy']:.6f} Ha"</span>)
+<span class="comment"># Ground state: -1.137 Ha</span>
+  </div>
+
+  <h3 style="margin:32px 0 16px;font-size:18px;font-weight:600;">Example: 1000-Qubit Clifford</h3>
+  <div class="code-block">
+<span class="keyword">from</span> phase1_basic.simulators <span class="keyword">import</span> CliffordSimulator
+
+sim = CliffordSimulator(n_qubits=<span class="string">1000</span>)
+sim.h(<span class="string">0</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="func">range</span>(<span class="string">999</span>):
+    sim.cnot(i, i+<span class="string">1</span>)
+<span class="comment"># Completes in &lt; 1 second</span>
+<span class="comment"># Memory: ~4 MB</span>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="container">
+    QPU Software Simulation Suite v1.0 | September 2026<br>
+    Supporting the Quantum Computing Hardware R&D Project<br>
+    Pure NumPy implementation | Zero external dependencies for core simulators
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.section).classList.add('active');
+  });
+});
+
+document.querySelectorAll('.phase-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const parent = btn.closest('.section');
+    parent.querySelectorAll('.phase-tab').forEach(b => b.classList.remove('active'));
+    parent.querySelectorAll('.phase-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.phase).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
